@@ -160,6 +160,7 @@ function startJarvis() {
     awake = false;
     if (t.includes("youtube")) {
       say("Opening YouTube");
+      window.open("https://www.youtube.com/", "_blank");
       window.open("https://www.youtube.com", "_blank");
     } else if (t.includes("google")) {
       say("Opening Google");
