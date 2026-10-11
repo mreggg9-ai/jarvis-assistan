@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>My Jarvis Assistant</title>
+</head>
+<body style="background:#101820;color:#00ffcc;text-align:center;font-family:Arial;padding:40px">
+  <h1>🤖 JARVIS</h1>
+  <h3 id="status">Click Start Listening</h3>
+  <button onclick="startJarvis()">Start Listening</button>
+  <button onclick="stopJarvis()">Stop</button>
+  <p id="heard">Waiting for you...</p>
+
+<script>
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let recognition;
+let active = false;
+let awake = false;
+
+function speak(text) {
+  document.getElementById("status").textContent = text;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+
+function startJarvis() {
+  if (!SpeechRecognition) {
+    speak("Speech recognition is not supported. Please try Chrome.");
+    return;
+  }
+
+  if (active) return;
+  active = true;
+  awake = false;
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.continuous = true;
+  recognition.interimResults = false;
+
+  recognition.onresult = function(event) {
+    const text = event.results[event.results.length - 1][0]
+      .transcript.toLowerCase().trim();
+
+    document.getElementById("heard").textContent = "Heard: " + text;
+
+    if (!awake) {
+      if (text.includes("hey jarvis")) {
+        awake = true;
+        speak("I'm listening, boss. What do you need?");
+      }
+      return;
+    }
+
+    awake = false;
+
+    if (text.includes("youtube")) {
+      speak("Opening YouTube");
+      window.open("https://www.youtube.com", "_blank");
+    } else if (text.includes("google")) {
+      speak("Opening Google");
+      window.open("https://www.google.com", "_blank");
+    } else if (text.includes("time")) {
+      speak("The time is " +
+        new Date().toLocaleTimeString("en-IN"));
+    } else if (text.includes("date")) {
+      speak("Today is " +
+        new Date().toLocaleDateString("en-IN"));
+    } else if (text.startsWith("search ")) {
+      const query = text.substring(7);
+      speak("Searching Google");
+      window.open(
+        "https://www.google.com/search?q=" +
+        encodeURIComponent(query), "_blank");
+    } else {
+      speak("Sorry boss, I don't know that command yet.");
+    }
+  };
+
+  recognition.onerror = function(event) {
+    document.getElementById("status").textContent =
+      "Microphone: " + event.error;
+  };
+
+  recognition.onend = function() {
+    if (active) {
+      try { recognition.start(); } catch (e) {}
+    }
+  };
+
+  try {
+    recognition.start();
+    speak("Jarvis is ready. Say Hey Jarvis.");
+  } catch (e) {
+    active = false;
+    speak("Could not start listening. Please try again.");
+  }
+}
+
+function stopJarvis() {
+  active = false;
+  awake = false;
+  if (recognition) recognition.stop();
+  speechSynthesis.cancel();
+  document.getElementById("status").textContent = "Jarvis stopped";
+}
+</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>JARVIS</title>
+</head>
+<body style="background:#101820;color:#00ffcc;font-family:Arial;text-align:center;padding:40px">
+<h1>🤖 JARVIS</h1>
+<p id="status">Ready</p>
+<button onclick="startJarvis()">Start Listening</button>
+<button onclick="stopJarvis()">Stop</button>
+<p id="heard">Say "Hey Jarvis"</p>
+
+<script>
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec, active = false, awake = false;
+
+function say(t) {
+  document.getElementById("status").textContent = t;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(new SpeechSynthesisUtterance(t));
+}
+
+function startJarvis() {
+  if (!SR) {
+    say("Speech recognition is not supported in this browser.");
+    return;
+  }
+  if (active) return;
+  active = true;
+  rec = new SR();
+  rec.lang = "en-IN";
+  rec.continuous = true;
+
+  rec.onresult = e => {
+    let t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+    document.getElementById("heard").textContent = "Heard: " + t;
+
+    if (!awake) {
+      if (t.includes("hey jarvis")) {
+        awake = true;
+        say("I'm listening, boss");
+      }
+      return;
+    }
+
+    awake = false;
+    if (t.includes("youtube")) {
+      say("Opening YouTube");
+      window.open("https://www.youtube.com", "_blank");
+    } else if (t.includes("google")) {
+      say("Opening Google");
+      window.open("https://www.google.com", "_blank");
+    } else if (t.includes("time")) {
+      say("The time is " + new Date().toLocaleTimeString());
+    } else if (t.includes("date")) {
+      say("Today is " + new Date().toLocaleDateString());
+    } else if (t.startsWith("search ")) {
+      say("Searching Google");
+      window.open("https://www.google.com/search?q=" + encodeURIComponent(t.slice(7)), "_blank");
+    } else {
+      say("I don't know that command yet, boss");
+    }
+  };
+
+  rec.onerror = e => {
+    document.getElementById("status").textContent = "Microphone: " + e.error;
+  };
+  rec.onend = () => {
+    if (active) {
+      try { rec.start(); } catch (e) {}
+    }
+  };
+  try {
+    rec.start();
+    say("Jarvis is ready. Say Hey Jarvis");
+  } catch (e) {
+    active = false;
+    say("Could not start. Try again.");
+  }
+}
+
+function stopJarvis() {
+  active = false;
+  awake = false;
+  if (rec) rec.stop();
+  speechSynthesis.cancel();
+  document.getElementById("status").textContent = "Jarvis stopped";
+}
+</script>
+</body>
+</html>
